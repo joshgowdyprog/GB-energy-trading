@@ -1,4 +1,4 @@
-Date (WET);price_first_auction;price_second_auction;traded_volume_first_auction;traded_volume_second_auction;price_forecast_first_auction
+Date (WET);price_first_auction;price_second_auction;traded_volume_first_auction;traded_volume_second_auction;price_reference_forecast_first_auction
 ;GBP/MWh;GBP/MWh;MW;MW;GBP/MWh
 [01/01/2021 00:00];68;65.73;2923.7;5102.4;54.19
 [01/01/2021 01:00];62.7;64.96;2825;4771.5;53.42

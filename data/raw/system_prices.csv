@@ -1,4 +1,4 @@
-Date (WET);forecast_system_price_low;forecast_system_price_high;system_price
+Date (WET);reference_forecast_system_price_low;reference_forecast_system_price_high;system_price
 ;GBP/MWh;GBP/MWh;GBP/MWh
 [01/01/2021 00:00];48.33;44.89;73.15
 [01/01/2021 01:00];54.35;53.26;71.95
