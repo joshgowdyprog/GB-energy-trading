@@ -22,7 +22,7 @@
 
 * *Margin Over Demand* - % - The Margin values divided by Demand values.
 
-* *SNSP Forecast* - GBP/MWh - forecasts system non-synchronous penetration, which is a the percentage of how much generation or imports that will be on the system that are not synchronised with frequency
+* *SNSP Forecast* - % - forecasts system non-synchronous penetration, which is the percentage of how much generation or imports that will be on the system that are not synchronised with frequency
 
 * *Stack Price* - GBP/MWh - The breakeven cost of generation as reported by a stack model. This stack model uses as inputs Spectron daily carbon, coal and gas prices (based upon closing prices) and uses UOU 2-14 day availability forecast data by unit. Where margin levels are tight an uplift is applied to reflect the increased reluctance to generate given the risk of high imbalance prices.
 

@@ -14,17 +14,23 @@ cycler==0.12.1
     # via matplotlib
 fonttools==4.57.0
     # via matplotlib
+joblib==1.4.2
+    # via scikit-learn
 kiwisolver==1.4.8
     # via matplotlib
 matplotlib==3.10.1
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   seaborn
 numpy==2.2.5
     # via
     #   contourpy
     #   matplotlib
     #   pandas
     #   patsy
+    #   scikit-learn
     #   scipy
+    #   seaborn
     #   statsmodels
 packaging==25.0
     # via
@@ -34,6 +40,7 @@ packaging==25.0
 pandas==2.2.3
     # via
     #   -r requirements.in
+    #   seaborn
     #   statsmodels
 patsy==1.0.1
     # via statsmodels
@@ -53,12 +60,20 @@ python-dateutil==2.9.0.post0
     #   pandas
 pytz==2025.2
     # via pandas
+scikit-learn==1.6.1
+    # via -r requirements.in
 scipy==1.15.2
-    # via statsmodels
+    # via
+    #   scikit-learn
+    #   statsmodels
+seaborn==0.13.2
+    # via -r requirements.in
 six==1.17.0
     # via python-dateutil
 statsmodels==0.14.4
     # via -r requirements.in
+threadpoolctl==3.6.0
+    # via scikit-learn
 tzdata==2025.2
     # via pandas
 wheel==0.45.1
