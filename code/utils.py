@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 def find_loc_null(df):
     """
@@ -52,3 +52,25 @@ def get_sample_with_missing_values(df, start_date, end_date, column, days_missin
     sample_missing.loc[missing_start:missing_end] = np.nan
     dates_missing = sample_missing.index[(sample_missing[column].isnull())]
     return sample, sample_missing, dates_missing
+
+def calculate_VIF(features):
+    """
+    Calculate the Variance Inflation Factor (VIF) for each feature in the dataframe.
+    This is used to detect multicollinearity in regression models.
+
+    Parameters
+    ----------
+    features : pd.DataFrame
+        Dataframe with features to calculate VIF for.
+    
+    Returns
+    -------
+    pd.DataFrame
+        Dataframe with features and their corresponding VIF values.
+    """
+    vif = pd.DataFrame()
+    vif["features"] = features.columns[1:]
+    vif["vif_Factor"] = [variance_inflation_factor(np.array(features[features.columns[1:]].values, dtype=float), i) 
+                     for i in range(features.shape[1]-1)]
+
+    return vif[vif.vif_Factor>10].sort_values(by='vif_Factor',ascending=False)

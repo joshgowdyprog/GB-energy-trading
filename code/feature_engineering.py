@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 def generate_lag_timeseries(data, targets, lag=24):
     """
@@ -52,14 +53,15 @@ def pre_engineer_timeseries(data):
     data : pd.DataFrame
         The input data with the new features added.
     """
-
     data.loc[:,'auction_price_spread']=data['price_second_auction']-data['price_first_auction']
     data.loc[:,'system_price_spread']=data['system_price']-data['price_first_auction']
 
-    targets=['price_first_auction', 'auction_price_difference', 'system_price_difference']
+    targets=['price_first_auction', 'auction_price_spread', 'system_price_spread']
     df=data[targets].copy()
     df.columns=['price1', 'spread1', 'spread2']
-    targets=['price1', 'spread1', 'spread2']
+    df['log_price1'] = np.log(df['price1']+25)
+    df=df.drop(columns=['price1'])
+    targets=['log_price1', 'spread1', 'spread2']
 
     df=generate_lag_timeseries(df, targets, 24)
     df=generate_lag_timeseries(df, targets, 72)
@@ -349,3 +351,4 @@ def make_new_price_indicators(data, features, indicator_functions):
 
     new_data = pd.concat([data, pd.DataFrame(indicators, index=data.index)], axis=1)
     return new_data
+
