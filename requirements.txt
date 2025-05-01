@@ -32,6 +32,7 @@ numpy==2.2.5
     #   scipy
     #   seaborn
     #   statsmodels
+    #   xgboost
 packaging==25.0
     # via
     #   build
@@ -66,6 +67,7 @@ scipy==1.15.2
     # via
     #   scikit-learn
     #   statsmodels
+    #   xgboost
 seaborn==0.13.2
     # via -r requirements.in
 six==1.17.0
@@ -78,6 +80,8 @@ tzdata==2025.2
     # via pandas
 wheel==0.45.1
     # via pip-tools
+xgboost==3.0.0
+    # via -r requirements.in
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

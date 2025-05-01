@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
 def generate_lag_timeseries(data, targets, lag=24):
     """
@@ -63,20 +65,33 @@ def pre_engineer_timeseries(data):
     df=df.drop(columns=['price1'])
     targets=['log_price1', 'spread1', 'spread2']
 
+    # standardize the data
+    coeffs={'col':[], 'mean':[], 'std':[]}
+    for col in targets:
+        coeffs['col'].append(col)
+        mean = df[col].mean()
+        coeffs['mean'].append(mean)
+        std = df[col].std()
+        coeffs['std'].append(std)
+        df[col] = (df[col] - mean) / std
+    
+    coeffs = pd.DataFrame(coeffs)
+    coeffs=coeffs.set_index('col')
+
     df=generate_lag_timeseries(df, targets, 24)
     df=generate_lag_timeseries(df, targets, 72)
     df=generate_lag_timeseries(df, targets, 24*7)
     df=generate_close_timeseries(df, targets)
 
-    return df
+    return df, coeffs
 
-def calculate_PPCMA(data, feature, window=24):
+def calculate_PCMA(data, feature, window=24):
     """
-    Calculate the Percentage Price Change Moving Average for a given feature and window.
+    Calculate the Percentage Change Moving Average for a given feature and window.
     """
-    ppc= (data[feature]-data[feature].shift(24))/data[feature].shift(24)*100
-    ppcma= ppc.rolling(window).mean()
-    return ppcma
+    pc= (data[feature]-data[feature].shift(24))/data[feature].shift(24)*100
+    pcma= pc.rolling(window).mean()
+    return pcma
 
 def calculate_ATR(data, feature, window=24, lag=24):
     """
@@ -252,9 +267,9 @@ def calculate_MACD(data, feature, window_smaller=12, window_larger=24):
     
     return macd
 
-def calculate_PMOM(data, feature, lag=1):
+def calculate_MOM(data, feature, lag=1):
     """
-    Calculate the Price Momentum (PMOM) for a given feature in the data and lag.
+    Calculate the Momentum (MOM) for a given feature in the data and lag.
 
     Parameters
     ----------
@@ -270,9 +285,9 @@ def calculate_PMOM(data, feature, lag=1):
     pd.Series
         The PMOM values for the specified feature.
     """
-    pmom = data[feature] - data[feature].shift(lag)
+    mom = data[feature] - data[feature].shift(lag)
     
-    return pmom
+    return mom
 
 def calculate_RSTDEV(data, feature, window=24):
     """
@@ -321,8 +336,6 @@ def calculate_ZSCORE(data, feature, window=24):
     
     return zscore
 
-
-
 def make_new_price_indicators(data, features, indicator_functions):
     """
     Create new indicators based on the lagged timeseries using a flexible approach.
@@ -352,3 +365,25 @@ def make_new_price_indicators(data, features, indicator_functions):
     new_data = pd.concat([data, pd.DataFrame(indicators, index=data.index)], axis=1)
     return new_data
 
+def transform_data_to_PCA(X, n_components):
+    """
+    Transform the data to PCA space using the specified number of components.
+    This function standardizes the data before applying PCA.
+    
+    Parameters
+    ----------
+    X : pd.DataFrame
+        Dataframe with features to apply PCA on.
+    n_components : int
+        Number of principal components to keep.
+
+    Returns
+    -------
+    X_pca : pd.DataFrame
+        Transformed data in PCA space.
+    """
+    X_std=StandardScaler().fit_transform(X)
+    pca = PCA(n_components=n_components)
+    X_pca = pca.fit_transform(X_std)
+    
+    return pd.DataFrame(X_pca, columns=[f"PC{i+1}" for i in range(n_components)], index=X.index)

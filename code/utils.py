@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
 def find_loc_null(df):
     """
@@ -74,3 +76,57 @@ def calculate_VIF(features):
                      for i in range(features.shape[1]-1)]
 
     return vif[vif.vif_Factor>10].sort_values(by='vif_Factor',ascending=False)
+
+def calculate_explained_variance(X):
+    """
+    Calculate the portion of explained variance
+    by each principal component in the PCA. Also outputs a dataframe with the
+    principal components and their corresponding features.
+    This function standardizes the data before applying PCA.
+    Parameters
+    ----------
+    X : pd.DataFrame
+        Dataframe with features to apply PCA on.
+    Returns
+    -------
+    explained_variance : np.ndarray
+        Array with the explained variance ratio for each principal component.
+    pc_df : pd.DataFrame
+        Dataframe with the principal components and their corresponding features.
+    """
+    X_std=StandardScaler().fit_transform(X)
+    pca = PCA()
+    pca.fit(X_std)
+    explained_variance = pca.explained_variance_ratio_
+    pc_df = pd.DataFrame(pca.components_,
+                        columns=X.columns,
+                        index=[f"PC{i+1}" for i in range(len(X.columns))])
+
+    return explained_variance, pc_df
+
+def find_low_variance_features(principal_components, podium=10, threshold=0.1):
+    """
+    Find low variance features in the principal components.
+    This function checks the first 'podium' number of principal components and
+    returns the features that have a variance lower than 'threshold' in all of them.
+
+    Parameters
+    ----------
+    principal_components : pd.DataFrame
+        Dataframe with the principal components.
+    podium : int
+        Number of principal components to check.
+    threshold : float
+        Threshold for low variance. Features with variance lower than this value
+        in all 'podium' principal components will be returned.
+    Returns
+    -------
+    low_variance_cols : list
+        List of features with low variance in the specified principal components.
+    """
+    low_variance_cols = []
+    top_components=principal_components.iloc[0:podium]
+    for col in top_components.columns:
+        if (top_components[col]<threshold).all():
+            low_variance_cols.append(col)
+    return low_variance_cols
