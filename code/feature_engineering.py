@@ -58,12 +58,13 @@ def pre_engineer_timeseries(data):
     data.loc[:,'auction_price_spread']=data['price_second_auction']-data['price_first_auction']
     data.loc[:,'system_price_spread']=data['system_price']-data['price_first_auction']
 
-    targets=['price_first_auction', 'auction_price_spread', 'system_price_spread']
+    targets=['price_first_auction', 'price_second_auction',  'system_price', 'auction_price_spread', 'system_price_spread']
     df=data[targets].copy()
-    df.columns=['price1', 'spread1', 'spread2']
-    df['log_price1'] = np.log(df['price1']+25)
-    df=df.drop(columns=['price1'])
-    targets=['log_price1', 'spread1', 'spread2']
+    df.columns=['price1', 'price2', 'price3', 'spread1', 'spread2']
+    df['log_price1'] = np.log(df['price1']+100)
+    df['log_price2'] = np.log(df['price2']+100)
+    df['log_price3'] = np.log(df['price3']+100)
+    targets=['price1', 'price2', 'price3','log_price1','log_price2', 'log_price3', 'spread1', 'spread2']
 
     # standardize the data
     coeffs={'col':[], 'mean':[], 'std':[]}
@@ -87,9 +88,9 @@ def pre_engineer_timeseries(data):
 
 def calculate_PCMA(data, feature, window=24):
     """
-    Calculate the Percentage Change Moving Average for a given feature and window.
+    Calculate the Proportional Change Moving Average for a given feature and window.
     """
-    pc= (data[feature]-data[feature].shift(24))/data[feature].shift(24)*100
+    pc= (data[feature]-data[feature].shift(24))/data[feature].shift(24)
     pcma= pc.rolling(window).mean()
     return pcma
 
@@ -149,7 +150,7 @@ def calculate_MAD(data, feature, window=24):
         The MAD values for the specified feature.
     """
     pma= data[feature].rolling(window).mean()
-    mad = (data[feature]-pma)/pma*100
+    mad = (data[feature]-pma)/pma
     
     return mad
 
@@ -197,14 +198,14 @@ def calculate_ADX(data, feature, window=24):
 
 def calculate_PR(data, feature, window=24):
     """
-    Calculate the Percentage Range (PR) for a given feature in the data and window size.
-    The PR is a measure as a percentage of the price within its range over the specified window.    
+    Calculate the Proportional Range (PR) for a given feature in the data and window size.
+    The PR is a measure as a proportion of the price within its range over the specified window.    
 
     """
     high = data[feature].rolling(window).max()
     low = data[feature].rolling(window).min()
     
-    pr = (high-data[feature]) / (high - low) * 100
+    pr = (high-data[feature]) / (high - low)
     
     return pr
 
@@ -236,7 +237,7 @@ def calculate_RSI(data, feature, window=24):
     loss_ma[loss_ma==0]=1e-10
     ds=1-gain_ma/loss_ma
 
-    rsi = 100 - (100 / ds)
+    rsi = 1 - (1 / ds)
 
     return rsi
 

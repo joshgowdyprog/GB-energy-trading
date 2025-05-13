@@ -4,10 +4,16 @@
 #
 #    pip-compile --output-file=requirements.txt requirements.in
 #
+alembic==1.15.2
+    # via optuna
 build==1.2.2.post1
     # via pip-tools
 click==8.1.8
     # via pip-tools
+cloudpickle==3.1.1
+    # via shap
+colorlog==6.9.0
+    # via optuna
 contourpy==1.3.2
     # via matplotlib
 cycler==0.12.1
@@ -18,30 +24,46 @@ joblib==1.4.2
     # via scikit-learn
 kiwisolver==1.4.8
     # via matplotlib
+llvmlite==0.44.0
+    # via numba
+mako==1.3.10
+    # via alembic
+markupsafe==3.0.2
+    # via mako
 matplotlib==3.10.1
     # via
     #   -r requirements.in
     #   seaborn
+numba==0.61.2
+    # via shap
 numpy==2.2.5
     # via
     #   contourpy
     #   matplotlib
+    #   numba
+    #   optuna
     #   pandas
     #   patsy
     #   scikit-learn
     #   scipy
     #   seaborn
+    #   shap
     #   statsmodels
     #   xgboost
+optuna==4.3.0
+    # via -r requirements.in
 packaging==25.0
     # via
     #   build
     #   matplotlib
+    #   optuna
+    #   shap
     #   statsmodels
 pandas==2.2.3
     # via
     #   -r requirements.in
     #   seaborn
+    #   shap
     #   statsmodels
 patsy==1.0.1
     # via statsmodels
@@ -61,21 +83,43 @@ python-dateutil==2.9.0.post0
     #   pandas
 pytz==2025.2
     # via pandas
+pyyaml==6.0.2
+    # via optuna
 scikit-learn==1.6.1
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   shap
 scipy==1.15.2
     # via
     #   scikit-learn
+    #   shap
     #   statsmodels
     #   xgboost
 seaborn==0.13.2
     # via -r requirements.in
+shap==0.47.2
+    # via -r requirements.in
 six==1.17.0
     # via python-dateutil
+slicer==0.0.8
+    # via shap
+sqlalchemy==2.0.40
+    # via
+    #   alembic
+    #   optuna
 statsmodels==0.14.4
     # via -r requirements.in
 threadpoolctl==3.6.0
     # via scikit-learn
+tqdm==4.67.1
+    # via
+    #   optuna
+    #   shap
+typing-extensions==4.13.2
+    # via
+    #   alembic
+    #   shap
+    #   sqlalchemy
 tzdata==2025.2
     # via pandas
 wheel==0.45.1
