@@ -7,3 +7,7 @@ seaborn==0.13.2
 xgboost==3.0.0
 optuna==4.3.0
 shap==0.47.2
+keras==3.9.2
+tensorflow==2.19.0
+torch==2.7.0
+torchvision==0.22.0
