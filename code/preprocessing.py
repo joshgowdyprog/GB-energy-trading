@@ -1,9 +1,85 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 from statsmodels.tsa.seasonal import STL
 from statsmodels.tsa.arima.model import ARIMA
-from sklearn import metrics
+
+def load_auction_data(file_paths:list):
+    """
+    Load day-ahead auction and balancing mechanism data from a CSV file paths, merge these dataframes, and parse the index as datetime.
+    The first row of the merged dataframe is removed, and the data is converted to numeric.
+
+    Seperate the reference price forecasts contianed in the datasets from the actual price and volume data.
+
+    Parameters
+    ----------
+    file_paths : list
+        List of file paths to the CSV files to be loaded.
+    Returns
+    -------
+    auction_data : pd.DataFrame
+        Merged dataframe with the auction data.
+    reference_forecasts : pd.DataFrame
+        Dataframe with the reference forecasts.
+    """
+    df1=pd.read_csv(file_paths[0], delimiter=';', index_col=0)
+    df2=pd.read_csv(file_paths[1], delimiter=';', index_col=0)
+
+    # remove duplicate rows with same datetime (from daylight savings)
+    df1=df1[~df1.index.duplicated(keep='first')]
+    df2=df2[~df2.index.duplicated(keep='first')]
+
+    auction_data=df1.merge(df2, left_index=True, right_index=True, how='left')
+    # remove first row
+    auction_data=auction_data.iloc[1:]
+    # convert data to numeric
+    auction_data=auction_data.apply(pd.to_numeric, errors='coerce')
+    # parse dates
+    auction_data.index=auction_data.index.str.replace(r'[\[\]]', '', regex=True)
+    auction_data.index=pd.to_datetime(auction_data.index, format='%d/%m/%Y %H:%M')
+    auction_data.index.name='date'
+    auction_data=auction_data.asfreq('h')
+
+    # seperate reference price forecasts from actual price and volume data
+    reference_forecasts=auction_data.loc[:,auction_data.columns.str.contains('forecast')]
+
+    auction_data=auction_data.loc[:,~auction_data.columns.str.contains('forecast')]
+
+    return auction_data, reference_forecasts
+
+
+def load_forecasts(file_path):
+    """
+    Load forecasts of energy fundamentals and price forecasts data from a CSV file, 
+    parse the index as datetime, and convert data to numeric.
+
+    Parameters
+    ----------
+    file_paths : list
+        List of file paths to the CSV files to be loaded.
+    Returns
+    -------
+    fundamentals : pd.DataFrame
+        Dataframe with the energy fundamentals data.
+    """
+    df=pd.read_csv(file_path, delimiter=';', index_col=0)
+
+    # remove duplicate rows with same datetime (from daylight savings)
+    df=df[~df.index.duplicated(keep='first')]
+    # remove first row
+    df=df.iloc[1:]
+    # convert data to numeric
+    df=df.apply(pd.to_numeric, errors='coerce')
+    # parse dates
+    df.index=df.index.str.replace(r'[\[\]]', '', regex=True)
+    df.index=pd.to_datetime(df.index, format='%d/%m/%Y %H:%M')
+    df.index.name='date'
+    df=df.asfreq('h')
+
+    # columns containing 'previous' are not forecasts but actual previous values of the auction data 
+    # we will construct our own price indicators from past auction data
+    forecasts=df[df.columns[~df.columns.str.contains('previous')]]
+
+    return forecasts
 
 def STL_decompose_data(df, column, period:int):
     """
@@ -29,84 +105,6 @@ def STL_decompose_data(df, column, period:int):
     stl = STL(df[column].interpolate(), period=period)
     result = stl.fit()
     return result
-
-def plot_imputations(df, imputed_df_dict, dates_missing):
-    """
-    Plot the original dataframe and the imputed dataframes for various methods of imputing.
-    """
-    plt.figure(figsize=(20,5))
-    plt.grid()
-    plt.plot(df.loc[dates_missing], label='original')
-    for key, val in imputed_df_dict.items():
-        plt.plot(val.loc[dates_missing], label="imputed with"+key)
-    plt.legend(loc='best')
-
-def evaluate_imputations(df, imputed_df_dict, dates_missing):
-    """
-    Evaluate the imputation of missing values in a dataframe for a dictionary of 
-    imputation methods.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Original dataframe.
-    df_missing : pd.DataFrame
-        Dataframe with missing values.
-    imputed_df : pd.DataFrame
-        Dataframe with imputed values.
-    dates_missing : pd.DatetimeIndex
-        Dates of the missing values.
-
-    Returns
-    -------
-    mse : float
-        Mean squared error of the imputation.
-    """
-    rmse_dict = imputed_df_dict.copy()
-    for key,val in rmse_dict.items():
-        rmse_dict[key]=np.sqrt(metrics.mean_squared_error(df.loc[dates_missing], val.loc[dates_missing]))
-    rmse_df = pd.DataFrame(list(rmse_dict.items()), columns=['Method', 'RMSE'])
-    rmse_df.set_index('Method', inplace=True)
-    rmse_df.sort_values(by='RMSE', ascending=True, inplace=True)
-    return rmse_df
-
-def test_imputations(df, cols:list, sample_dates:list, methods:list):
-    """
-    Test the imputation methods on a dataframe with missing values.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Dataframe to test.
-    cols : list
-        List of columns to test.
-    dates : list
-        List of dates to test.
-
-    Returns
-    -------
-    None
-    """
-    from utils import get_sample_with_missing_values
-
-    results={}
-    for col in cols:
-        samples=[]
-        for sample_date_start, sample_date_end in sample_dates:
-            sample, sample_missing, dates_missing = get_sample_with_missing_values(df, sample_date_start, sample_date_end, col)
-            sample_imputed_dict = {}
-            for method, kwargs in methods:
-                imputer = Imputer(method, **kwargs)
-                sample_imputed_dict[method+'_'+str(list(kwargs.values()))] = imputer.impute(sample_missing, col)  
-            
-            eval_df=evaluate_imputations(sample, sample_imputed_dict, dates_missing)
-            samples.append(eval_df)
-
-        sample_means_rmse=pd.concat(samples).groupby(level=0).mean()
-        sample_means_rmse=sample_means_rmse.sort_values(by='RMSE', ascending=True)
-        results[col]=sample_means_rmse
-        
-    return results
 
 class Imputer:
     """
