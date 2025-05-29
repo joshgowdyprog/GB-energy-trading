@@ -36,6 +36,46 @@ def get_model(model_config):
         return LogisticRegression(**params)
     else:
         raise ValueError(f"Unsupported model type: {model_type}")
+    
+def save_model(model, config, params_dict, dataset_dict):
+
+    # save accuracies and weight and threshold to csv
+    results_df = pd.DataFrame({
+        "model_1": [config["model_1"]["type"]],
+        "model_2": [config["model_2"]["type"]],
+        "optimum_weight_model_1": [params_dict["best_weight"]],
+        "optimum_prediction_threshold": [params_dict["best_thresh"]],
+        "validation_start_date": [dataset_dict["y_valid"].index[0].strftime("%Y:%m:%d")],
+        "validation_accuracy": [params_dict["valid_accuracy"]],
+        "holdout_start_date": [dataset_dict["y_holdout"].index[0].strftime("%Y:%m:%d")],
+        "holdout_accuracy": [params_dict["unseen_acc"]]
+    })
+    results_path = config["model"]["results_path"]
+    print(f"Saving results to: {results_path}")
+    results_df.to_csv(results_path, index=False)
+
+    # save model
+    model_path= config["model"]["model_path"]
+    print(f"Saving model to: {model_path}")
+    joblib.dump(model, model_path)
+
+    # save training, validation, and holdout data for futher testing
+    print(f"Saving training, validation, and holdout data to CSV files in folder: {config['data']['processed_data']}")
+    dataset_dict["X_train"].to_csv(config["data"]["processed_data"]+'X_train.csv')
+    dataset_dict["y_train"].to_csv(config["data"]["processed_data"]+'y_train.csv')
+    dataset_dict["X_valid"].to_csv(config["data"]["processed_data"]+'X_valid.csv')
+    dataset_dict["y_valid"].to_csv(config["data"]["processed_data"]+'y_valid.csv')
+    dataset_dict["X_holdout"].to_csv(config["data"]["processed_data"]+'X_holdout.csv')
+    dataset_dict["y_holdout"].to_csv(config["data"]["processed_data"]+'y_holdout.csv')
+
+    # modify the trades_config.yaml file
+    with open('code/trades_config.yaml', 'r') as f:
+        trades_config = yaml.safe_load(f)
+    trades_config['model']['model_path'] = model_path
+    trades_config['model']['results_path'] = results_path
+    trades_config['data']['processed_data'] = config["data"]["processed_data"]
+    with open('code/trades_config.yaml', 'w') as f:
+        yaml.safe_dump(trades_config, f)
 
 def train_model(config):
     # load and preprocess auction data
@@ -147,20 +187,23 @@ def train_model(config):
     unseen_acc = accuracy_score(y_holdout, unseen_y_pred)
     print(f"Holdout Accuracy: {unseen_acc:.4f}")
 
-    # save model
-    model_path= config["model"]["model_path"]
-    print(f"Saving model to: {model_path}")
-    joblib.dump(ensemble, model_path)
+    # save model and results
+    params_dict = {
+        "best_weight": best_weight,
+        "best_thresh": best_thresh,
+        "valid_accuracy": acc,
+        "unseen_acc": unseen_acc
+    }
+    dataset_dict = {
+        "X_train": X_train,
+        "y_train": y_train,
+        "X_valid": X_valid,
+        "y_valid": y_valid,
+        "X_holdout": X_holdout,
+        "y_holdout": y_holdout
+    }
+    save_model(ensemble, config, params_dict, dataset_dict)
 
-    # modify the trades_config.yaml file
-    with open('code/trades_config.yaml', 'r') as f:
-        trades_config = yaml.safe_load(f)
-    trades_config['model']['model_path'] = model_path
-    trades_config['model']['threshold'] = round(float(best_thresh), 5)
-    trades_config['model']['validation_dates'] = [y_valid.index[0].strftime("%Y:%m:%d"),y_valid.index[-1].strftime("%Y:%m:%d")]
-    trades_config['model']['holdout_dates'] = [y_holdout.index[0].strftime("%Y:%m:%d"),y_holdout.index[-1].strftime("%Y:%m:%d")]
-    with open('code/trades_config.yaml', 'w') as f:
-        yaml.safe_dump(trades_config, f)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train classifier to forecast price movements")

@@ -1,0 +1,2 @@
+model_1,model_2,optimum_weight_model_1,optimum_prediction_threshold,validation_start_date,validation_accuracy,holdout_start_date,holdout_accuracy
+logistic_regression,xgboost,0.47368421052631576,0.4623115577889447,2022:07:16,0.6203288490284006,2022:08:13,0.6223118279569892

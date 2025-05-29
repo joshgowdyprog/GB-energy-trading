@@ -5,6 +5,7 @@ data: # running from repository root
     - data/raw/auction_data.csv
     - data/raw/system_prices.csv
   forecast_file: data/raw/forecast_features.csv
+  processed_data: data/processed/ # path to folder to save processed data to
 
 features:
   lags: [24, 72, 168]  # hourly lags: 1 day, 3 days, 1 week
@@ -12,21 +13,10 @@ features:
   timeseries_columns: # lagged timeseries to be used to build indicators
   # for example
     # - auction_price_spread_lag24
-    # - price_first_auction_lag24
-    # - price_second_auction_lag24
-    # - traded_volume_first_auction_lag24
-    # - traded_volume_second_auction_lag24
   indicators: # indicators to be calculated from the timeseries
   # for example
     # - [ATR_7, calculate_ATR, {"window": 24, "lag": 168}]
-    # - [MAD_24, calculate_MAD, {"window": 24}]
-    # - [RSTDEV_24, calculate_RSTDEV, {"window": 24}]
-    # - [ZSCORE_7, calculate_ZSCORE, {"window": 168}]
-    # - [ADX_7, calculate_ADX, {"window": 168}]
-    # - [PR_24, calculate_PR, {"window": 24}]
-    # - [RSI_24, calculate_RSI, {"window": 24}]
-    # - [MOM_3h, calculate_MOM, {"lag": 3}]
-
+    # - [ZSCORE_24, calculate_ZSCORE, {"window": 24}]
 
 target: auction_spread_dir # target variable to predict (can't change this for now)
 
@@ -59,4 +49,5 @@ model_2:
 
 model:
   model_path: models/auction_ensemble_model.pkl
+  results_path: models/auction_ensemble_results.csv
   
