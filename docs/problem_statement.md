@@ -2,14 +2,14 @@
 
 ## Build a price and spread forecaster.
 
-1. Build a ML learning model forecaster of the first auction price. We need this price in order to determine at what level we enter the market regardless of whether we buy or sell.
-
-2. Build a separate ML learning model forecaster of the auction price spread between the first and second aucitons, auction_price_spread =  price_second_auction - price_first_auction AND the system price spread between the system price in the balancing mechanism and the first auction, system_price_spread = system_price - first_auction_price.
+1. Build a ML learning model forecaster of the direction of spread between the first and second auction prices. We need this in order to determine whether we buy to sell or sell to buy. I.e. long versus short.
 
 ## Build and Test Strategies
 
-1. use these forecasts to predict profit from a given strategy.
-2. build a cuistom naive strategy as baseline
-3. optimise a strategy to maximise profit
-4. model risk? Minimise risk?
+1. use these forecasts to decide when to trade and if so whether to trade long or short
+2. decision to trade can be based off thresholds in the model prediction probabilities
+3. sizing can be based also on the model probabilities
+4. build a cuistom naive strategy as baseline
+5. optimise a strategy to maximise profit on test set
+6. see how it performs on unseen data
 

@@ -1,0 +1,62 @@
+# config.yaml
+
+data: # running from repository root
+  auction_files:
+    - data/raw/auction_data.csv
+    - data/raw/system_prices.csv
+  forecast_file: data/raw/forecast_features.csv
+
+features:
+  lags: [24, 72, 168]  # hourly lags: 1 day, 3 days, 1 week
+  use_indicators: False # whether to use indicators or not
+  timeseries_columns: # lagged timeseries to be used to build indicators
+  # for example
+    # - auction_price_spread_lag24
+    # - price_first_auction_lag24
+    # - price_second_auction_lag24
+    # - traded_volume_first_auction_lag24
+    # - traded_volume_second_auction_lag24
+  indicators: # indicators to be calculated from the timeseries
+  # for example
+    # - [ATR_7, calculate_ATR, {"window": 24, "lag": 168}]
+    # - [MAD_24, calculate_MAD, {"window": 24}]
+    # - [RSTDEV_24, calculate_RSTDEV, {"window": 24}]
+    # - [ZSCORE_7, calculate_ZSCORE, {"window": 168}]
+    # - [ADX_7, calculate_ADX, {"window": 168}]
+    # - [PR_24, calculate_PR, {"window": 24}]
+    # - [RSI_24, calculate_RSI, {"window": 24}]
+    # - [MOM_3h, calculate_MOM, {"lag": 3}]
+
+
+target: auction_spread_dir # target variable to predict (can't change this for now)
+
+train:
+  holdout_frac: 0.9 # date to split holdout test set from training-validation sets
+  n_splits: 9 # number of splits for time series cross-validation
+
+# To switch models, change the `type` and 'params' fields below
+
+model_1:
+  type: logistic_regression
+  params:
+    penalty: l2
+    C: 1.0
+    max_iter: 1000
+
+model_2:
+  type: xgboost
+  params: # these params were tuned using optuna to maximise accuracy
+    learning_rate: 0.0010379285121370155
+    n_estimators: 2351
+    max_depth: 3
+    min_child_weight: 4
+    gamma: 0.23827657359841373
+    subsample: 0.5602029535091642
+    colsample_bytree: 0.6699648350010676
+    reg_alpha: 0.30652381056990213
+    reg_lambda: 3.5613757799294055
+
+
+model:
+  model_path: models/auction_ensemble_model.pkl
+  

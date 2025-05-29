@@ -1,0 +1,9 @@
+model:
+  holdout_dates:
+  - '2022:08:13'
+  - '2022:09:12'
+  model_path: models/auction_ensemble_model.pkl
+  threshold: 0.46231
+  validation_dates:
+  - '2022:07:16'
+  - '2022:08:12'

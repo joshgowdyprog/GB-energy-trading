@@ -1,0 +1,9 @@
+model:
+  model_path: models/auction_ensemble_model.pkl
+  threshold: 0.512 # threshold for the ensemble model to make a prediction
+  validation_dates: # start and end dates for validation set
+    - 2022-09-01
+    - 2023-01-01
+  holdout_dates: # start and end dates for holdout test set
+    - 2023-01-01
+    - 2023-03-01
