@@ -61,6 +61,7 @@ def save_model(model, config, params_dict, dataset_dict):
 
     # save training, validation, and holdout data for futher testing
     print(f"Saving training, validation, and holdout data to CSV files in folder: {config['data']['processed_data']}")
+    dataset_dict["auction_data"].to_csv(config["data"]["processed_data"]+'auction_data.csv')
     dataset_dict["X_train"].to_csv(config["data"]["processed_data"]+'X_train.csv')
     dataset_dict["y_train"].to_csv(config["data"]["processed_data"]+'y_train.csv')
     dataset_dict["X_valid"].to_csv(config["data"]["processed_data"]+'X_valid.csv')
@@ -195,6 +196,7 @@ def train_model(config):
         "unseen_acc": unseen_acc
     }
     dataset_dict = {
+        "auction_data": data,
         "X_train": X_train,
         "y_train": y_train,
         "X_valid": X_valid,
