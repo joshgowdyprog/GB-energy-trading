@@ -45,9 +45,9 @@ def save_model(model, config, params_dict, dataset_dict):
         "model_2": [config["model_2"]["type"]],
         "optimum_weight_model_1": [params_dict["best_weight"]],
         "optimum_prediction_threshold": [params_dict["best_thresh"]],
-        "validation_start_date": [dataset_dict["y_valid"].index[0].strftime("%Y:%m:%d")],
+        "validation_start_date": [dataset_dict["y_valid"].index[0]],
         "validation_accuracy": [params_dict["valid_accuracy"]],
-        "holdout_start_date": [dataset_dict["y_holdout"].index[0].strftime("%Y:%m:%d")],
+        "holdout_start_date": [dataset_dict["y_holdout"].index[0]],
         "holdout_accuracy": [params_dict["unseen_acc"]]
     })
     results_path = config["model"]["results_path"]
@@ -68,15 +68,6 @@ def save_model(model, config, params_dict, dataset_dict):
     dataset_dict["y_valid"].to_csv(config["data"]["processed_data"]+'y_valid.csv')
     dataset_dict["X_holdout"].to_csv(config["data"]["processed_data"]+'X_holdout.csv')
     dataset_dict["y_holdout"].to_csv(config["data"]["processed_data"]+'y_holdout.csv')
-
-    # modify the trades_config.yaml file
-    with open('code/trades_config.yaml', 'r') as f:
-        trades_config = yaml.safe_load(f)
-    trades_config['model']['model_path'] = model_path
-    trades_config['model']['results_path'] = results_path
-    trades_config['data']['processed_data'] = config["data"]["processed_data"]
-    with open('code/trades_config.yaml', 'w') as f:
-        yaml.safe_dump(trades_config, f)
 
 def train_model(config):
     # load and preprocess auction data

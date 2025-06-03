@@ -1,0 +1,13 @@
+data:
+  processed_data: data/processed/
+model:
+  model_path: models/auction_ensemble_model.pkl
+  results_path: models/auction_ensemble_results.csv
+strategy:
+  name: main
+  strategy_start_date: 2022-07-16 03:00:00 # start date (e.g. start of the validation and useen holdout periods)
+  fee: 5 # fee per trade
+  max_vol: 10 # maximum volume per trade  
+  sizing_exponent: 2 # exponent for sensitivity of position sizing to model confidence
+  threshold_delta: 0.15 # model predictions with confidence beyond best_threshold +/- threshold_delta trigger a trade
+  strategy_folder: strategy_results/main_strategy/

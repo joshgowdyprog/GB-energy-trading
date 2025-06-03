@@ -1,5 +1,0 @@
-data:
-  processed_data: data/processed/
-model:
-  model_path: models/auction_ensemble_model.pkl
-  results_path: models/auction_ensemble_results.csv

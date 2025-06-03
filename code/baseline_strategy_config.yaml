@@ -1,0 +1,10 @@
+data:
+  processed_data: data/processed/
+model:
+  model_path: models/auction_ensemble_model.pkl
+  results_path: models/auction_ensemble_results.csv
+strategy:
+  name: baseline
+  strategy_start_date: 2022-07-16 03:00:00 # start date (e.g. start of the validation and useen holdout periods)
+  max_vol: 10 # volume per trade
+  strategy_folder: strategy_results/baseline_strategy/
