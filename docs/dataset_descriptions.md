@@ -8,4 +8,4 @@ In all the above datasets the source and modelling method for forecasts of the f
 
 Similarly the exact sources of actual price and volume data which are the key inputs for model training are unknown although unlikely to be completely incorrect.
 
-In summary, these datasets shuld be regarded as toy datasets until better data is found!
+In summary, these datasets shuld be regarded as toy datasets!
