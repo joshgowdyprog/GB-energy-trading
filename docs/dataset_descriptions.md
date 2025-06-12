@@ -4,6 +4,8 @@
 
 * *system_prices.csv* - This dataset has the actual hourly system prices from the balancing mechanism as well as for reference the forecasted price range of these system prices. Prices in GBP/MWh for the energy generated in that hour period.
 
+Datasets gathered from Kaggle.
+
 In all the above datasets the source and modelling method for forecasts of the features (i.e. fundamentals such as demand and renewable generation forecasts) is not known and should be used carefully. Also the reference price forecasts are a result of an unknown model (what this repo replicates) and so should basically be ignored.
 
 Similarly the exact sources of actual price and volume data which are the key inputs for model training are unknown although unlikely to be completely incorrect.
