@@ -4,7 +4,7 @@ import yaml
 import matplotlib.pyplot as plt
 
 class TradingStrategy:
-    def __init__(self, config_dict, auction_data, y_proba=None, start_date=None):
+    def __init__(self, config_dict, auction_data, y_proba=None, strat_dates=None):
 
         self.config = config_dict
 
@@ -14,16 +14,13 @@ class TradingStrategy:
         self.threshold_delta = self.config.get('strategy').get('threshold_delta', 0.15)
 
         self.y_proba = y_proba
-        self.start_date = str(start_date)
-        if self.start_date is None:
+        self.start_date = str(strat_dates[0]) if strat_dates is not None else None
+        self.end_date = str(strat_dates[1]) if strat_dates is not None else None
+        if self.start_date and self.end_date is None:
             self.order_book = auction_data.copy()
-            if y_proba is not None:
-                self.order_book["y_proba"] = y_proba
         else:
-            self.order_book = auction_data.loc[self.start_date:].copy()
-            if y_proba is not None:
-                start_idx = auction_data.index.get_loc(self.start_date)
-                self.order_book["y_proba"] = y_proba[start_idx:]
+            self.order_book = auction_data.loc[self.start_date:self.end_date].copy()
+        self.order_book["y_proba"] = y_proba
 
     def define_baseline_signal(self):
         self.order_book['auction_spread_dir_lag24'] = self.order_book['auction_spread_dir'].shift(24)

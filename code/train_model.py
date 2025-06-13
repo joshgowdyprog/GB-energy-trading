@@ -68,6 +68,8 @@ def save_model(model, config, params_dict, dataset_dict):
     dataset_dict["y_valid"].to_csv(config["data"]["processed_data"]+'y_valid.csv')
     dataset_dict["X_holdout"].to_csv(config["data"]["processed_data"]+'X_holdout.csv')
     dataset_dict["y_holdout"].to_csv(config["data"]["processed_data"]+'y_holdout.csv')
+    dataset_dict["X_full"].to_csv(config["data"]["processed_data"]+'X_full.csv')
+    dataset_dict["y_full"].to_csv(config["data"]["processed_data"]+'y_full.csv')
 
 def train_model(config):
     # load and preprocess auction data
@@ -105,9 +107,6 @@ def train_model(config):
     # combine and rescale features
     data=pd.concat([auction_data, fundamentals], axis=1)
 
-    # use the second half of the available data (most relebvant for the current/future state of the market)
-    data = data.iloc[int(data.shape[0]/2):]
-
     data=data.dropna(axis=0, how='any')
     y=data[config["target"]]
 
@@ -125,6 +124,12 @@ def train_model(config):
     X_scaled = X.copy()
     X_scaled = scaler.fit_transform(X_scaled)
     X_scaled = pd.DataFrame(X_scaled, columns=X.columns, index=X.index)
+
+    # use the second half of the available data (most relebvant for the current/future state of the market)
+    y_full=y.copy()
+    X_full=X_scaled.copy()
+    y = y.iloc[int(data.shape[0]/2):]
+    X_scaled = X_scaled.iloc[int(data.shape[0]/2):]
 
     # Train/test split
     X_holdout = X_scaled.iloc[int(config["train"]["holdout_frac"]*X_scaled.shape[0]):]
@@ -193,7 +198,9 @@ def train_model(config):
         "X_valid": X_valid,
         "y_valid": y_valid,
         "X_holdout": X_holdout,
-        "y_holdout": y_holdout
+        "y_holdout": y_holdout,
+        "X_full": X_full,
+        "y_full": y_full
     }
     save_model(ensemble, config, params_dict, dataset_dict)
 

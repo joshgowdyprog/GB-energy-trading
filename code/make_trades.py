@@ -24,6 +24,8 @@ def make_trades(config):
     y_valid = pd.read_csv(config['data']['processed_data']+'y_valid.csv', index_col=0)
     X_holdout = pd.read_csv(config['data']['processed_data']+'X_holdout.csv', index_col=0)
     y_holdout = pd.read_csv(config['data']['processed_data']+'y_holdout.csv', index_col=0)
+    X_full = pd.read_csv(config['data']['processed_data']+'X_full.csv', index_col=0)
+    y_full = pd.read_csv(config['data']['processed_data']+'y_full.csv', index_col=0)
 
     # load auction data
     auction_data = pd.read_csv(config['data']['processed_data']+'auction_data.csv', index_col=0)
@@ -46,23 +48,25 @@ def make_trades(config):
     print(f"Validation accuracy: {valid_accuracy:.4f}")
     print(f"Holdout accuracy: {holdout_accuracy:.4f}")
 
-    # combine all sets
-    X=pd.concat([X_train, X_valid, X_holdout], axis=0)
-    y=pd.concat([y_train, y_valid, y_holdout], axis=0)
+    # use strategy date convert to datetime
+    strategy_start_date = config.get('strategy').get('strategy_start_date', X_full.index[0])
+    strategy_end_date = config.get('strategy').get('strategy_end_date', X_full.index[-1])
+    print(f"Using strategy start and end date: {strategy_start_date}, {strategy_end_date}")
+
+    X=X_full
+    X.index = pd.to_datetime(X.index)
+    X = X.loc[strategy_start_date:strategy_end_date]
+    y=y_full
+    y.index = pd.to_datetime(y.index)
+    y = y.loc[strategy_start_date:strategy_end_date]
+
     y_proba=model.predict_proba(X)[:, 1]
     y_pred = (y_proba>=best_threshold).astype(int)
     overall_accuracy=accuracy_score(y, y_pred)
-    print(f"Overall accuracy: {overall_accuracy:.4f}")
-
-    if config.get('strategy').get('strategy_start_date', None) is not None:
-        strategy_start_date = config['strategy']['strategy_start_date']
-    else:
-        strategy_start_date = None
-
-    print(f"Using strategy start date: {strategy_start_date}")
+    print(f"Overall accuracy on all data: {overall_accuracy:.4f}")
 
     strat = TradingStrategy(
-        config, auction_data, y_proba, start_date=strategy_start_date, 
+        config, auction_data, y_proba, strat_dates=[strategy_start_date, strategy_end_date], 
     )
     order_book = strat.perform_strategy(strategy=config['strategy']['name'], best_threshold=best_threshold)
     strat.plot_returns(title='Cumulative Profit from Trades')

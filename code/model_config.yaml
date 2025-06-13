@@ -1,8 +1,8 @@
 # config.yaml
 
-data: # running from repository root
+data:
   auction_files:
-    - data/raw/auction_data.csv
+    - data/raw/auction_data.csv # running from repository root
     - data/raw/system_prices.csv
   forecast_file: data/raw/forecast_features.csv
   processed_data: data/processed/ # path to folder to save processed data to
