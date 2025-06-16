@@ -9,11 +9,11 @@ venv/
 
 EDA/
 
-# code/baseline_backtest.yaml
-# code/main_backtest.yaml
-# strategy_results/baseline_backtest/
-# strategy_results/main_backtest/
+code/baseline_backtest.yaml
+code/main_backtest.yaml
+strategy_results/baseline_backtest/
+strategy_results/main_backtest/
 
-# allfiles.txt
-# find-large-blobs.sh
-# large_blobs_report.txt
+allfiles.txt
+find-large-blobs.sh
+large_blobs_report.txt
